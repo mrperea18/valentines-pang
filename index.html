@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valentine Request v3.2</title>
+<title>Valentine Request v4.0</title>
 
 <style>
   body{
@@ -27,29 +27,51 @@
     max-width:380px;
     box-shadow:0 25px 60px rgba(0,0,0,.6);
     z-index:5;
+    text-align:center;
   }
 
   input,button{
-    width:100%;
+    width:80%;
     padding:12px;
     border-radius:12px;
     border:none;
     margin-top:10px;
+    font-size:16px;
     font-weight:bold;
   }
 
-  input{ font-weight:normal }
+  input{ font-weight:normal; text-align:center; }
 
   .yes{ background:#22c55e }
   .no{ background:#ef4444;color:white }
 
   .terminal{
-    background:black;
+    background:#111;
     border-radius:12px;
     padding:14px;
     min-height:140px;
     white-space:pre-wrap;
     font-size:14px;
+    text-align:left;
+    margin-top:10px;
+    max-height:180px;
+    overflow-y:auto;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .heart {
+    position: absolute;
+    color: #ff5d8f;
+    font-size: 14px;
+    animation: floatUp linear infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100%); opacity: 0; }
+    50% { opacity: 0.9; }
+    100% { transform: translateY(-20%); opacity:0; }
   }
 
   #cameraOverlay{
@@ -95,74 +117,99 @@
     transition:transform 1s ease, opacity 1s ease;
     z-index:30;
   }
+  
+  @keyframes explodeHeart {
+  0% { transform: translate(0,0) scale(1); opacity:1; }
+  50% { transform: scale(1.2); opacity:1; }
+  100% { transform: translate(var(--x), var(--y)) scale(0.5); opacity:0; }
+}
 </style>
 </head>
 
 <body>
 
+<!-- Background Music -->
+<audio id="bgMusic" src="your-valentine-music.mp3" loop autoplay></audio>
+
 <!-- LOCK SCREEN -->
 <div class="card" id="lock">
   <h3>🔐 Secure Access</h3>
   <p>Enter our special code ❤️</p>
-  <input id="code" type="password" placeholder="Hint: Our date 😉">
+  <input id="code" type="password" placeholder="Hint: Date kung kelan kita sinagot 🤪">
   <button class="yes" onclick="unlock()">Unlock</button>
 </div>
 
 <!-- MAIN APP -->
 <div class="card" id="app" style="display:none">
-  <h3>POST /valentine-request 💘</h3>
+  <h3>mrperea / POST /valentine-request 💘</h3>
   <div class="terminal" id="terminal"></div>
-  <button class="yes" onclick="accept()">200 OK – YES</button>
-  <button class="no" id="noBtn" onclick="flyAway()">403 – NO</button>
+  <button class="yes" onclick="accept()">OOOOOPKORS</button>
+  <button class="no" id="noBtn" onclick="flyAway()">NAAAAAAAH</button>
 </div>
 
 <!-- CAMERA -->
 <div id="cameraOverlay">
+  <div id="countdown" style="
+       position:absolute; 
+       font-size:72px; 
+       color:#ff5d8f; 
+       font-weight:bold; 
+       top:50%; 
+       left:50%; 
+       transform:translate(-50%,-50%);
+       z-index:25;
+       pointer-events:none;
+       opacity:0;
+       text-shadow: 0 0 10px #ff5d8f, 0 0 20px #ff5d8f;">
+  </div>
   <video id="video" autoplay playsinline></video>
   <img id="photo" style="display:none">
   <canvas id="canvas"></canvas>
   <div class="camera-text" id="camText">
-    📸 Capturing our YES moment...
+    📸 Allow camera mo bebe... 😅
   </div>
 </div>
 
 <script>
-/* ✏️ CUSTOMIZE */
-const PASSCODE = "0214";
+/* PASSCODE */
+const PASSCODE = "1207";
 
-/* LOCK */
+/* LOCK SCREEN */
 function unlock(){
   if(code.value === PASSCODE){
     lock.style.display="none";
     app.style.display="block";
-    typeText();
+    typeTerminalLogin();
+    startHearts();
   }else{
     alert("❌ Access denied 😌");
   }
 }
 
-/* TERMINAL */
+/* TERMINAL TEXT ON LOGIN */
 const terminal = document.getElementById("terminal");
-const lines = [
-  "Initializing romance protocol...",
-  "Target user authenticated ❤️",
+const loginLines = [
+  "Booting romantic system...",
+  "User authenticated: My Pangskiiiii ❤️",
   "",
   "{",
-  '  "request": "Valentine Date",',
-  '  "status": "PENDING"',
+  '  "request": "Hi Pang, Would you like to be my Valentine? 🥰",',
+  '  ',
+  '  "status": "WAITING"',
   "}",
   "",
   "Awaiting response..."
 ];
 let i=0;
-function typeText(){
-  if(i<lines.length){
-    terminal.innerHTML += lines[i++]+"\n";
-    setTimeout(typeText,300);
+function typeTerminalLogin(){
+  if(i<loginLines.length){
+    terminal.innerHTML += loginLines[i++]+"\n";
+    terminal.scrollTop = terminal.scrollHeight;
+    setTimeout(typeTerminalLogin,300);
   }
 }
 
-/* NO BUTTON FLY AWAY */
+/* NO BUTTON FLYAWAY */
 function flyAway(){
   const btn = document.getElementById("noBtn");
   btn.classList.add("flyaway");
@@ -174,17 +221,96 @@ function flyAway(){
 
 /* YES FLOW */
 function accept(){
-  fireworks();
-  openCamera();
+  typeTerminalBeforeCapture();
 }
 
+/* TERMINAL BEFORE CAMERA */
+function typeTerminalBeforeCapture(){
+  const initLines = [
+    "Initializing romance protocol...",
+    "Calibrating heartbeats...",
+    "Setting fireworks...",
+    "Preparing camera capture..."
+  ];
+  let idx = 0;
+  function typeNext(){
+    if(idx < initLines.length){
+      terminal.innerHTML += initLines[idx++] + "\n";
+      terminal.scrollTop = terminal.scrollHeight;
+      setTimeout(typeNext, 400);
+    } else {
+      // Fireworks first, then camera after fireworks finish
+      fireworks().then(() => openCamera());
+    }
+  }
+  typeNext();
+}
+
+/* FIREWORKS HEART STYLE (returns Promise) */
+function fireworks(){
+  return new Promise((resolve)=>{
+    let fireworksCount = 8; // number of main explosions
+    for(let i=0;i<fireworksCount;i++){
+      createHeartExplosion();
+    }
+
+    function createHeartExplosion(){
+      const centerX = Math.random()*window.innerWidth;
+      const centerY = Math.random()*window.innerHeight*0.6;
+      let heartsPerExplosion = 6 + Math.floor(Math.random()*6); // 6-12 small hearts
+
+      let done = 0;
+      for(let j=0;j<heartsPerExplosion;j++){
+        const h = document.createElement("div");
+        h.className = "firework";
+        h.innerHTML = "❤️";
+        h.style.left = centerX + "px";
+        h.style.top = centerY + "px";
+        h.style.fontSize = (12 + Math.random()*16) + "px";
+        h.style.color = `hsl(${Math.random()*360},100%,70%)`;
+        h.style.setProperty("--x", (Math.random()*200-100)+"px");
+        h.style.setProperty("--y", (Math.random()*200-100)+"px");
+        h.style.position = "fixed";
+        h.style.zIndex = "100";
+        h.style.pointerEvents = "none";
+        h.style.animation = "explodeHeart 1.2s ease-out forwards";
+        document.body.appendChild(h);
+
+        setTimeout(()=>{
+          h.remove();
+          done++;
+          if(done===heartsPerExplosion) fireworksCount--; // track explosions
+          if(fireworksCount === 0) resolve(); // resolve promise after all explosions
+        },1200);
+      }
+    }
+  });
+}
+
+/* CAMERA + COUNTDOWN + AUTO CAPTURE */
 function openCamera(){
-  cameraOverlay.style.display="flex";
+  const overlay = document.getElementById("cameraOverlay");
+  overlay.style.display="flex";
   navigator.mediaDevices.getUserMedia({video:true})
     .then(stream=>{
       video.srcObject = stream;
-      setTimeout(capture,2000); // AUTO CAPTURE
-    });
+      startCountdown(3); // 3-second countdown
+    })
+    .catch(()=>alert("Camera permission needed 💕"));
+}
+
+function startCountdown(seconds){
+  let counter = seconds;
+  camText.innerHTML = `📸 Capturing photo in ${counter}...`;
+  const interval = setInterval(()=>{
+    counter--;
+    if(counter > 0){
+      camText.innerHTML = `📸 Capturing photo in ${counter}...`;
+    } else {
+      clearInterval(interval);
+      capture(); // take photo after countdown
+    }
+  },1000);
 }
 
 function capture(){
@@ -195,22 +321,22 @@ function capture(){
   photo.src = canvas.toDataURL("image/png");
   photo.style.display="block";
   video.style.display="none";
-  camText.innerHTML="💖 This moment is saved";
+  camText.innerHTML="💖 Yiiiieeeeee!!! Kilig nanaman ang bebe ko. 🤪 (Note: Send me the actual pic. Labyuuuu! 😘 )";
 }
 
-/* FIREWORKS */
-function fireworks(){
-  for(let i=0;i<14;i++){
-    const f=document.createElement("div");
-    f.className="firework";
-    f.style.left=Math.random()*100+"vw";
-    f.style.top=Math.random()*60+"vh";
-    f.style.background=`hsl(${Math.random()*360},100%,70%)`;
-    f.style.setProperty("--x",`${Math.random()*200-100}px`);
-    f.style.setProperty("--y",`${Math.random()*200-100}px`);
-    document.body.appendChild(f);
-    setTimeout(()=>f.remove(),1200);
-  }
+/* HEART ANIMATION */
+function startHearts(){
+  const term = document.getElementById("terminal");
+  setInterval(()=>{
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.innerHTML = "❤️";
+    h.style.left = Math.random()*90 + "%";
+    h.style.fontSize = (Math.random()*12+12) + "px";
+    h.style.animationDuration = (Math.random()*3 + 3) + "s";
+    term.appendChild(h);
+    setTimeout(()=>h.remove(),4000);
+  },300);
 }
 </script>
 
