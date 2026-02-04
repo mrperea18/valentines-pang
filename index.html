@@ -129,7 +129,7 @@
 <body>
 
 <!-- Background Music -->
-<audio id="bgMusic" src="your-valentine-music.mp3" loop autoplay></audio>
+<audio id="bgMusic" src="your-valentine-music.mp3" loop></audio>
 
 <!-- LOCK SCREEN -->
 <div class="card" id="lock">
@@ -181,6 +181,12 @@ function unlock(){
     app.style.display="block";
     typeTerminalLogin();
     startHearts();
+
+    // Play background music now
+    const bg = document.getElementById("bgMusic");
+    bg.play().catch(e=>{
+      console.log("Music playback failed:", e);
+    });
   }else{
     alert("❌ Access denied 😌");
   }
@@ -342,3 +348,4 @@ function startHearts(){
 
 </body>
 </html>
+
